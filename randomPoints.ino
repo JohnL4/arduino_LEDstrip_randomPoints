@@ -18,7 +18,7 @@
 #define GRID_SIZE 5
 
 // Max. flare age
-#define MAX_AGE 100
+#define MAX_AGE 80
 
 #define FLARE_CHANCE_DENOMINATOR 100
 
@@ -78,11 +78,11 @@ void setup() {
 void loop() {
    // put your main code here, to run repeatedly:
 
-   Serial.print( "millis() = ");
-   Serial.println( millis());
+   // Serial.print( "millis() = ");
+   // Serial.println( millis());
 
-   Serial.print( "flareCount = ");
-   Serial.println( flareCount);
+   // Serial.print( "flareCount = ");
+   // Serial.println( flareCount);
 
    if (flareCount < MAX_FLARES)
    {
@@ -92,8 +92,8 @@ void loop() {
       //    r = 0;                 // Guaranteed birth the first time.
       // else
       r = random( FLARE_CHANCE_DENOMINATOR);
-      Serial.print( "r = ");
-      Serial.println( r);
+      // Serial.print( "r = ");
+      // Serial.println( r);
       if (r == 0)
       {
          makeNewFlare( flares, nextFlareIx);
