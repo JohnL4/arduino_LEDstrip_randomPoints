@@ -1,0 +1,8 @@
+* arduino_LEDstrip_randomPoints
+
+  Light up random points on the Adafruit LED strip.  See my other repository, LEDStrand-WS2801-XY,
+  for more info.
+
+  At present, it lights up a small number of pixels in random locations and with random hues and
+  then fades them down to darkness, a little like fireworks.
+  
