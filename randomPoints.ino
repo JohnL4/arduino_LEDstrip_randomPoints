@@ -20,7 +20,7 @@
 // Max. flare age
 #define MAX_AGE 80
 
-#define FLARE_CHANCE_DENOMINATOR 100
+#define FLARE_CHANCE_DENOMINATOR 80
 
 // Max. number of flares.
 #define MAX_FLARES 10
