@@ -64,11 +64,26 @@ struct flare flares[MAX_FLARES];
 // ---------------------------------------------------------------------------------------------------------------------
 
 void setup() {
-  // put your setup code here, to run once:
+   int i;
+   struct rgbTriple rgb;
+   float dHue = 360.0 / 25.0;
+   int h;
+   
    strip.begin();
    strip.show();
    randomSeed( 1);
    Serial.begin( 115200);
+
+   clearStrip();
+   for (i = 0; i < 25; i++)
+   {
+      h = (int) (i * dHue + 0.5);
+      rgb = hsl2rgb( h, 1.0, 0.5);
+      strip.setPixelColor( i, Color( rgb.r, rgb.g, rgb.b));
+   }
+   strip.show();
+   delay( 20000);
+   clearStrip();
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
