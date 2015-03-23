@@ -20,7 +20,7 @@
 // Max. flare age
 #define MAX_AGE 80
 
-#define FLARE_CHANCE_DENOMINATOR 80
+#define FLARE_CHANCE_DENOMINATOR 70
 
 // Max. number of flares.
 #define MAX_FLARES 10
@@ -59,6 +59,37 @@ int nextFlareIx = 0;            // Index in flare array of next flare to be crea
 
 struct flare flares[MAX_FLARES];
 
+/*
+  Adjust hue to make less blue and more red.  The idea is to transform hue to "adjusted hues" such that angles near 0
+  (red) are adjusted closer to 0 (which makes look like there's more red in the hue circle), and angles near 240 (blue)
+  are adjusted such that they are "spread out" from 240, making it appear that there is LESS blue in the circle.
+
+  Maxima inputs are as follows.  Obviously, you can fiddle with the "radius" and "factor" (they control the amount of
+  adjustment) and the fixed points that are input into the spline.  Those fixed points are essentially the places where
+  no adjustment will take place.
+
+  (%i1) radius:30;factor:1.5;
+  (%i2) pts:[
+          [0,0],    
+          [radius, radius/factor],
+          [60,60],
+          [120,120],
+          [180,180],
+          [240-radius, 240-radius*factor],
+          [240,240],
+          [240+radius,240+radius*factor],
+          [300,300],
+          [360-radius,360-radius/factor],
+          [360,360]
+          ];
+   (%i3) load(interpol);
+   (%i4) cspline(pts);
+   (%i5) f(x):=''%;
+   (%i6) plot2d([x,[discrete,pts],f(x)],[x,0,360],[grid2d,true],[style,lines,linespoints]);
+   (%i7) makelist(floor(f(h)+0.5),h,0,359);
+ */
+short adjustedHue[] = { 0,0,0,1,1,1,1,2,2,2,2,3,3,3,4,4,5,5,6,6,7,7,8,9,9,10,11,12,13,14,15,16,17,18,20,21,22,24,25,27,28,30,31,33,34,36,38,39,41,43,44,46,47,49,51,52,54,55,57,59,60,61,63,64,66,67,68,70,71,72,73,74,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,94,95,96,97,98,99,100,100,101,102,103,104,105,105,106,107,108,109,110,111,112,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,130,131,132,133,134,135,136,137,139,140,141,142,143,144,146,147,148,149,150,151,152,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,172,173,174,175,176,176,177,178,178,179,179,180,181,181,181,182,182,183,183,183,184,184,185,185,185,186,186,186,187,187,188,188,189,189,190,190,191,192,193,193,194,195,196,197,198,199,200,201,203,204,205,207,208,210,211,213,214,216,217,219,221,222,224,226,227,229,231,233,235,236,238,240,242,244,245,247,249,251,253,254,256,258,260,261,263,265,266,268,269,271,272,274,275,277,278,279,280,281,282,283,284,285,286,286,287,288,288,289,289,289,290,290,291,291,291,291,292,292,292,293,293,293,294,294,295,295,296,297,297,298,299,300,301,302,303,305,306,307,309,310,312,313,315,317,318,320,322,323,325,327,328,330,332,333,335,337,338,340,341,342,344,345,346,347,348,349,350,351,352,353,353,354,355,355,356,356,357,357,357,358,358,358,358,359,359,359,359,359,360,360,360 };
+
 // ---------------------------------------------------------------------------------------------------------------------
 //  setup
 // ---------------------------------------------------------------------------------------------------------------------
@@ -68,6 +99,9 @@ void setup() {
    struct rgbTriple rgb;
    float dHue = 360.0 / 25.0;
    int h;
+   int hBias;
+   int x,y;
+   struct point pt;
    
    strip.begin();
    strip.show();
@@ -75,15 +109,43 @@ void setup() {
    Serial.begin( 115200);
 
    clearStrip();
-   for (i = 0; i < 25; i++)
-   {
-      h = (int) (i * dHue + 0.5);
-      rgb = hsl2rgb( h, 1.0, 0.5);
-      strip.setPixelColor( i, Color( rgb.r, rgb.g, rgb.b));
-   }
-   strip.show();
-   delay( 20000);
-   clearStrip();
+
+   // // for (hBias = 0; hBias < (360 * 1); hBias += (int) (360.0 / 25 + 0.5))
+   // for (hBias = 0; hBias < 25; hBias++)
+   // {
+   //    for (i = 0; i < 25; i++)
+   //    {
+   //       h = (int) (i * dHue + 0.5);
+   //       rgb = hsl2rgb( h, 1.0, 0.5);
+   //       strip.setPixelColor( (i + hBias) % 25, Color( rgb.r, rgb.g, rgb.b));
+   //    }
+   //    strip.show();
+   //    delay( 2000);
+   // }
+
+   // dHue = 10;
+   // clearStrip();
+   // for (x = 0; x < 5; x++)
+   // {
+   //    for (y = 3; y < 5; y++)
+   //    {
+   //       pt = {x,y};
+   //       h = (x-2) * dHue + 0;     // either side of red
+   //       rgb = hsl2rgb( h, 1.0, 0.5);
+   //       strip.setPixelColor( point2seq0( pt), Color( rgb.r, rgb.g, rgb.b));
+   //    }
+   //    for (y = 0; y < 2; y++)
+   //    {
+   //       pt = {x,y};
+   //       h = (x-2) * dHue + 240;     // either side of blue
+   //       rgb = hsl2rgb( h, 1.0, 0.5);
+   //       strip.setPixelColor( point2seq0( pt), Color( rgb.r, rgb.g, rgb.b));
+   //    }
+   // }
+   // strip.show();
+   // delay( 20000);
+   
+   // clearStrip();
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -322,7 +384,15 @@ struct rgbTriple hsl2rgb( int aHue, float aSat, float aLight)
    int hue = aHue;
    while (hue < 0)
       hue += 360;
-   while (hue > 360)
+   while (hue >= 360)
+      hue -= 360;
+
+   hue = adjustedHue[ hue];
+   
+   // In case adjustment puts us outside our range:
+   while (hue < 0)
+      hue += 360;
+   while (hue >= 360)
       hue -= 360;
 
    float h = (float) hue / 360.0;
