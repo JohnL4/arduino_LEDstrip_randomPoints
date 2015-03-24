@@ -60,28 +60,28 @@ int nextFlareIx = 0;            // Index in flare array of next flare to be crea
 struct flare flares[MAX_FLARES];
 
 /*
-  Adjust hue to make less blue and more red.  The idea is to transform hue to "adjusted hues" such that angles near 0
-  (red) are adjusted closer to 0 (which makes look like there's more red in the hue circle), and angles near 240 (blue)
-  are adjusted such that they are "spread out" from 240, making it appear that there is LESS blue in the circle.
+  Adjust hue to make less blue and more red.  The idea is to transform hue to "adjusted hue" such that angles near 0
+  (red) are adjusted closer to 0 (which makes it look like there's more red in the hue circle), and angles near 240
+  (blue) are adjusted such that they are "spread out" from 240, making it appear that there is LESS blue in the circle.
 
   Maxima inputs are as follows.  Obviously, you can fiddle with the "radius" and "factor" (they control the amount of
   adjustment) and the fixed points that are input into the spline.  Those fixed points are essentially the places where
   no adjustment will take place.
 
-  (%i1) radius:30;factor:1.5;
+  (%i1) radius:30; redFactor:2; blueFactor:3/2;
   (%i2) pts:[
-          [0,0],    
-          [radius, radius/factor],
-          [60,60],
-          [120,120],
-          [180,180],
-          [240-radius, 240-radius*factor],
-          [240,240],
-          [240+radius,240+radius*factor],
-          [300,300],
-          [360-radius,360-radius/factor],
-          [360,360]
-          ];
+        [0,0],  
+        [radius, radius/redFactor],
+        [60,60],
+        [120,120],
+        [180,180],
+        [240-radius, 240-radius*blueFactor],
+        [240,240],
+        [240+radius,240+radius*blueFactor],
+        [300,300],
+        [360-radius,360-radius/redFactor],
+        [360,360]
+        ];
    (%i3) load(interpol);
    (%i4) cspline(pts);
    (%i5) f(x):=''%;
@@ -105,7 +105,7 @@ void setup() {
    
    strip.begin();
    strip.show();
-   randomSeed( 1);
+   randomSeed( 2);
    Serial.begin( 115200);
 
    clearStrip();

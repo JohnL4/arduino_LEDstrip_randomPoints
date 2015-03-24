@@ -1,0 +1,85 @@
+/* [wxMaxima batch file version 1] [ DO NOT EDIT BY HAND! ]*/
+/* [ Created with wxMaxima version 13.04.2 ] */
+
+/* [wxMaxima: comment start ]
+So, we want to adjust the angle of the hues used by Adafruit product id 322
+(digital pixels).  The problem is that a straight [0..360] range doesn't spend enough
+"time" on red and way too much "time" on blue (don't know about green yet).
+
+So, for instance, when the input hue is, say, 15 degrees, the output is way too orange
+(or yellow, even).  So, we'd like to have a function into which we input 30 degrees, and
+which gives us back a number smaller than 30 degrees, say 15 or 20 degrees.  Likewise,
+we'd like to give the function some offset from 240 degrees (blue), say, 255 degrees and
+have it give us a larger offset back, say, 270 degrees, so blues appear offset toward
+purple or green (i.e., de-emphasizing the blue and emphasizing the red).
+
+So, we make up some values and then we use a cubic spline to approximate the function
+smoothly.
+
+Below, "radius" is sort of the "area of effect" of our fudging, and "factor" is the 
+amount we fudge hue angle by (2 is essentially 100%; 1.5 (or 3/2) would be 50%). 
+   [wxMaxima: comment end   ] */
+
+/* [wxMaxima: input   start ] */
+radius:30; redFactor:2; blueFactor:3/2;
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+pts:[
+[0,0],
+[radius, radius/redFactor],
+[60,60],
+[120,120],
+[180,180],
+[240-radius, 240-radius*blueFactor],
+[240,240],
+[240+radius,240+radius*blueFactor],
+[300,300],
+[360-radius,360-radius/redFactor],
+[360,360]
+];
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+plot2d([x,[discrete,pts]],[x,0,360],[grid2d,true],[style,lines,linespoints]);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: comment start ]
+Load the interpolation package:
+   [wxMaxima: comment end   ] */
+
+/* [wxMaxima: input   start ] */
+load(interpol);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: comment start ]
+Compute a cubic spline interpolating the given points.  charfun2() is the "characteristic
+function", a function returning 1 if x is within the given range, and 0 otherwise.
+   [wxMaxima: comment end   ] */
+
+/* [wxMaxima: input   start ] */
+cspline(pts);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: comment start ]
+Assign the formula to a function (this is some Maxima magic I don't fully understand yet):
+   [wxMaxima: comment end   ] */
+
+/* [wxMaxima: input   start ] */
+f(x):=''%;
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+plot2d([x,[discrete,pts],f(x)],[x,0,360],[grid2d,true],[style,lines,linespoints]);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+floor(4.9+.5);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+makelist(floor(f(h)+0.5),h,0,359);
+/* [wxMaxima: input   end   ] */
+
+/* Maxima can't load/batch files which end with a comment! */
+"Created with wxMaxima"$
